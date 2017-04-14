@@ -1,0 +1,28 @@
+apply plugin: 'maven-publish'
+apply plugin: 'com.jfrog.artifactory'
+apply plugin: 'java'
+
+publishing {
+    publications {
+        mavenPublication(MavenPublication) {
+            from components.java
+            groupId 'by.galt'
+            artifactId 'kmockserver'
+            version LIBRARY_VERSION_NAME
+        }
+    }
+}
+
+bintray {
+    user = bintray_username
+    key = bintray_apikey
+
+    publications = ['mavenPublication']
+    pkg {
+        repo = 'maven'
+        name = 'KmockServer'
+        version {
+            name = LIBRARY_VERSION_NAME
+        }
+    }
+}

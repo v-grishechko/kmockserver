@@ -41,6 +41,8 @@ captures/
 *.jks
 *.iml
 
+local.properties
+
 /local.properties
 /.idea/workspace.xml
 /.idea/libraries
