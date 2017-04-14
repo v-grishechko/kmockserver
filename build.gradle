@@ -1,0 +1,69 @@
+buildscript {
+    ext.kotlin_version = '1.1.1'
+
+    repositories {
+        jcenter()
+        mavenCentral()
+    }
+    dependencies {
+
+        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.4.15"
+        classpath 'org.junit.platform:junit-platform-gradle-plugin:1.0.0-M3'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.4.15"
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'kotlin'
+apply plugin: 'org.junit.platform.gradle.plugin'
+
+
+sourceCompatibility = 1.6
+targetCompatibility = 1.6
+
+compileJava {
+    sourceCompatibility = 1.6
+    targetCompatibility = 1.6
+}
+
+junitPlatform {
+    filters {
+        engines {
+            include 'spek'
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        url 'http://dl.bintray.com/kotlin/kotlinx.support'
+    }
+    maven {
+        url 'http://dl.bintray.com/kotlin/ktor'
+    }
+    jcenter()
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile 'io.reactivex:rxnetty:0.4.20'
+    compileOnly "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    compileOnly 'junit:junit:4.12'
+
+    testCompile 'org.assertj:assertj-core:2.6.0'
+    testCompile 'junit:junit:4.12'
+    testCompile 'com.squareup.okhttp3:okhttp:3.6.0'
+    testCompile "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
+    testCompile 'org.jetbrains.spek:spek-api:1.1.0'
+    testRuntime 'org.jetbrains.spek:spek-junit-platform-engine:1.1.0'
+}
+
+jar {
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
+defaultTasks 'run'
