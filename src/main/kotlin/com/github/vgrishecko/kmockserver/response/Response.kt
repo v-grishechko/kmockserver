@@ -12,13 +12,15 @@ class Response {
     var code: Int = 200
 
     fun headers(vararg headers: Header) {
-        val result = ArrayList<Header>()
-
-        for (header in headers) {
-            result.add(header)
-        }
+        val result = headers.toList()
 
         this.headers.addAll(result)
     }
 
+}
+
+fun response(init: Response.() -> Unit): Response {
+    val response = Response()
+    response.init()
+    return response
 }

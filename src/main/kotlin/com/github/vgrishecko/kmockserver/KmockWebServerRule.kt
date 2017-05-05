@@ -1,19 +1,18 @@
 package com.github.vgrishecko.kmockserver
 
 import com.github.vgrishecko.kmockserver.netty.NettyServer
-import com.github.vgrishecko.kmockserver.rule.ResponseRule
+import com.github.vgrishecko.kmockserver.request.Request
+import com.github.vgrishecko.kmockserver.response.Response
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
 import rx.Observable
 import rx.subjects.BehaviorSubject
-import java.net.URL
-
 
 class KmockWebServerRule : MockWebServerRule {
 
     val server: NettyServer = NettyServer()
 
-    var responseRules: MutableList<ResponseRule> = ArrayList()
+    var responseRules: MutableList<(Request) -> Response?> = ArrayList()
 
     var stopEvents = BehaviorSubject.create<Unit>()
 
@@ -37,11 +36,11 @@ class KmockWebServerRule : MockWebServerRule {
         return stopEvents
     }
 
-    override fun addRule(responseRule: ResponseRule) {
+    override fun addRule(responseRule: (Request) -> Response?) {
         responseRules.add(responseRule)
     }
 
-    override fun removeRule(responseRule: ResponseRule) {
+    override fun removeRule(responseRule: (Request) -> Response?) {
         responseRules.add(responseRule)
     }
 
