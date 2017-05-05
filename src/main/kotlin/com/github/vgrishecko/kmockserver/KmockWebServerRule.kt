@@ -1,7 +1,7 @@
-package by.galt.kmockserver
+package com.github.vgrishecko.kmockserver
 
-import by.galt.kmockserver.netty.NettyServer
-import by.galt.kmockserver.rule.ResponseRule
+import com.github.vgrishecko.kmockserver.netty.NettyServer
+import com.github.vgrishecko.kmockserver.rule.ResponseRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
 import rx.Observable

@@ -1,9 +1,10 @@
-package by.galt.kmockwebserver.sample
+package com.github.vgrishechko.kmockwebserver.sample
 
-import by.galt.kmockserver.KmockWebServerRule
-import by.galt.kmockserver.rule.ResponseRule
-import by.galt.kmockserver.rule.rule
-import by.galt.kmockserver.request.Header
+import com.github.vgrishecko.kmockserver.KmockWebServerRule
+import com.github.vgrishecko.kmockserver.request.Header
+import com.github.vgrishecko.kmockserver.rule.get
+import com.github.vgrishecko.kmockserver.rule.post
+import com.github.vgrishecko.kmockserver.rule.*
 import okhttp3.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Rule
@@ -26,15 +27,14 @@ class SampleTest {
     fun shouldReturnCorrectResponse() {
         val loginResponse = """"{"login":"test", "id":1}"""
 
-        serverRule.addRule(rule {
-            get("/login") {
-                response {
-                    code = 200
-                    body = loginResponse
-                    headers(Header("Authorization", "hash"), Header("Test", "test"))
-                }
-            }
-        })
+        serverRule.addRule(
+                get("/login") {
+                    response {
+                        code = 200
+                        body = loginResponse
+                        headers(Header("Authorization", "hash"), Header("Test", "test"))
+                    }
+                })
 
         val request = mockRequest("/login", "GET")
 
@@ -50,13 +50,13 @@ class SampleTest {
 
     @Test
     fun shouldReturn401StatusCode() {
-        serverRule.addRule(rule {
-            get("/login") {
-                response {
-                    code = 401
+        serverRule.addRule(
+                get("/login") {
+                    response {
+                        code = 401
+                    }
                 }
-            }
-        })
+        )
 
         client.newCall(mockRequest("/login", "GET")).execute().apply {
             assertThat(code()).isEqualTo(401)
@@ -74,19 +74,16 @@ class SampleTest {
         val getRequest = mockRequest("/get?a=123", "GET")
         val postRequest = mockRequest("/post", "POST", """{"expected_result:"success"}""")
 
-        val getRule = rule {
-            get("/get") {
-                response {
-                    code = 200
+        val getRule =
+                get("/get") {
+                    response {
+                        code = 200
+                    }
                 }
-            }
-        }
 
-        val postRule = rule {
-            post("/post") {
-                response {
-                    code = 200
-                }
+        val postRule = post("/post") {
+            response {
+                code = 200
             }
         }
 

@@ -1,6 +1,6 @@
-package by.galt.kmockserver.response
+package com.github.vgrishecko.kmockserver.response
 
-import by.galt.kmockserver.request.Header
+import com.github.vgrishecko.kmockserver.request.Header
 import java.util.*
 
 class Response {
@@ -13,6 +13,7 @@ class Response {
 
     fun headers(vararg headers: Header) {
         val result = ArrayList<Header>()
+
         for (header in headers) {
             result.add(header)
         }

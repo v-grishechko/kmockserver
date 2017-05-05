@@ -1,6 +1,6 @@
-package by.galt.kmockserver.netty
+package com.github.vgrishecko.kmockserver.netty
 
-import by.galt.kmockserver.rule.ResponseRule
+import com.github.vgrishecko.kmockserver.rule.ResponseRule
 import io.netty.buffer.ByteBuf
 import io.netty.handler.codec.http.HttpResponseStatus
 import io.reactivex.netty.RxNetty
@@ -16,8 +16,8 @@ class NettyServer {
         server = RxNetty.createHttpServer(8080, { request, response ->
 
             val rule = responseRules.firstOrNull {
-                request?.path.equals(it.request.path, true) &&
-                        request.httpMethod.name().equals(it.request.type.name, true)
+                request?.path.equals(it.path, true) &&
+                        request.httpMethod.name().equals(it.type.name, true)
             }
 
             if (rule != null) {
@@ -31,7 +31,6 @@ class NettyServer {
                 response.close()
             }
         })
-
 
         server?.start()
     }

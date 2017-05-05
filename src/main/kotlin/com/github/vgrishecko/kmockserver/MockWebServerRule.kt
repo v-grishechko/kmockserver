@@ -1,6 +1,6 @@
-package by.galt.kmockserver
+package com.github.vgrishecko.kmockserver
 
-import by.galt.kmockserver.rule.ResponseRule
+import com.github.vgrishecko.kmockserver.rule.ResponseRule
 import org.junit.rules.TestRule
 import rx.Observable
 
