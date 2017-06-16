@@ -16,7 +16,11 @@ class NettyServer {
 
     var server: HttpServer<ByteBuf, ByteBuf>? = null
 
-    fun start(responseRules: MutableList<(Request) -> Response?>) {
+    var responseRules: MutableList<(Request) -> Response?> = ArrayList()
+
+    var isPause = false
+
+    fun start() {
         stop()
 
         server = RxNetty.createHttpServer(8080, { request, serverResponse ->
@@ -38,6 +42,8 @@ class NettyServer {
                         }?.invoke(request)
                     }
                     .flatMap { response ->
+                        while (isPause) { }
+
                         if (response != null) {
                             response.headers.forEach { serverResponse.headers.addHeader(it.name, it.value) }
                             serverResponse.status = HttpResponseStatus(response.code, "")
@@ -47,7 +53,7 @@ class NettyServer {
                             serverResponse.status = HttpResponseStatus.NOT_FOUND
                             serverResponse.close()
                         }
-                    }
+                    }.ignoreElements()
 
 
         })
@@ -57,6 +63,7 @@ class NettyServer {
 
     fun stop() {
         server?.shutdown()
+        server = null
     }
 }
 

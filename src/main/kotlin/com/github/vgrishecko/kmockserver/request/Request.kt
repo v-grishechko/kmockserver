@@ -9,6 +9,6 @@ open class Request(val path: String, val type: Type) {
     lateinit var body: String
 
     enum class Type {
-        GET, POST;
+        GET, POST, DELETE;
     }
 }

@@ -19,4 +19,8 @@ internal interface MockWebServerRule : TestRule {
 
     fun removeRule(responseRule: (Request) -> Response?)
 
+    fun pause()
+
+    fun resume()
+
 }

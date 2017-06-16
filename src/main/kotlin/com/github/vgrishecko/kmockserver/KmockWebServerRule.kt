@@ -9,17 +9,20 @@ import rx.Observable
 import rx.subjects.BehaviorSubject
 
 class KmockWebServerRule : MockWebServerRule {
+    companion object {
+        val server: NettyServer = NettyServer()
 
-    val server: NettyServer = NettyServer()
-
-    var responseRules: MutableList<(Request) -> Response?> = ArrayList()
+        init {
+            server.start()
+        }
+    }
 
     var stopEvents = BehaviorSubject.create<Unit>()
 
     var startEvents = BehaviorSubject.create<Unit>()
 
     override fun start() {
-        server.start(responseRules)
+        server.start()
         startEvents.onNext(Unit)
     }
 
@@ -37,26 +40,35 @@ class KmockWebServerRule : MockWebServerRule {
     }
 
     override fun addRule(responseRule: (Request) -> Response?) {
-        responseRules.add(responseRule)
+        server.responseRules.add(responseRule)
     }
 
     override fun removeRule(responseRule: (Request) -> Response?) {
-        responseRules.add(responseRule)
+        server.responseRules.add(responseRule)
     }
 
     override fun apply(base: Statement?, description: Description?): Statement {
         return object : Statement() {
             override fun evaluate() {
-                start()
+                server.responseRules.clear()
 
                 try {
                     base?.evaluate()
                 } finally {
-                    responseRules.clear()
-                    stop()
+                    server.responseRules.clear()
                 }
             }
         }
     }
 
+    override fun pause() {
+        server.isPause = true
+    }
+
+    override fun resume() {
+        server.isPause = false
+    }
+
 }
+
+typealias ServerRule = (Request) -> Response?
