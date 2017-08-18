@@ -42,18 +42,27 @@ class NettyServer {
                         }?.invoke(request)
                     }
                     .flatMap { response ->
-                        while (isPause) { }
+                        while (isPause) {
+                        }
 
                         if (response != null) {
                             response.headers.forEach { serverResponse.headers.addHeader(it.name, it.value) }
                             serverResponse.status = HttpResponseStatus(response.code, "")
-                            serverResponse.writeString(response.body)
+
+                            if (response.body.isNotEmpty()) {
+                                serverResponse.writeString(response.body)
+                            }
+
                             serverResponse.close()
                         } else {
                             serverResponse.status = HttpResponseStatus.NOT_FOUND
                             serverResponse.close()
                         }
-                    }.ignoreElements()
+                    }.
+                    ignoreElements()
+                    .doOnError({ e ->
+                        e.printStackTrace()
+                    })
 
 
         })

@@ -39,11 +39,11 @@ class KmockWebServerRule : MockWebServerRule {
         return stopEvents
     }
 
-    override fun addRule(responseRule: (Request) -> Response?) {
+    override fun addRule(responseRule: ServerRule) {
         server.responseRules.add(responseRule)
     }
 
-    override fun removeRule(responseRule: (Request) -> Response?) {
+    override fun removeRule(responseRule: ServerRule) {
         server.responseRules.add(responseRule)
     }
 
@@ -55,6 +55,7 @@ class KmockWebServerRule : MockWebServerRule {
                 try {
                     base?.evaluate()
                 } finally {
+                    resume()
                     server.responseRules.clear()
                 }
             }
