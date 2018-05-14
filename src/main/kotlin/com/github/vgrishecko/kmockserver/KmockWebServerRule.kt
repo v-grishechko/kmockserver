@@ -1,8 +1,7 @@
 package com.github.vgrishecko.kmockserver
 
+import com.github.vgrishecko.kmockserver.entity.ServerRule
 import com.github.vgrishecko.kmockserver.netty.NettyServer
-import com.github.vgrishecko.kmockserver.request.Request
-import com.github.vgrishecko.kmockserver.response.Response
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
 import rx.Observable
@@ -71,5 +70,3 @@ class KmockWebServerRule : MockWebServerRule {
     }
 
 }
-
-typealias ServerRule = (Request) -> Response?

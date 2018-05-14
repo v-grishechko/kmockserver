@@ -1,11 +1,11 @@
 package com.github.vgrishecko.kmockserver
 
-import com.github.vgrishecko.kmockserver.request.Request
-import com.github.vgrishecko.kmockserver.response.Response
+import com.github.vgrishecko.kmockserver.entity.Request
+import com.github.vgrishecko.kmockserver.entity.Response
 import org.junit.rules.TestRule
 import rx.Observable
 
-internal interface MockWebServerRule : TestRule {
+interface MockWebServerRule : TestRule {
 
     fun start()
 
@@ -15,12 +15,13 @@ internal interface MockWebServerRule : TestRule {
 
     fun stopped(): Observable<Unit>
 
-    fun addRule(responseRule: (Request) -> Response?)
+    fun addRule(responseRule: Rule)
 
-    fun removeRule(responseRule: (Request) -> Response?)
+    fun removeRule(responseRule: Rule)
 
     fun pause()
 
     fun resume()
-
 }
+
+typealias Rule = (Request) -> Response?

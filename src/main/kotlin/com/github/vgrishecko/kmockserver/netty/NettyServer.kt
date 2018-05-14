@@ -1,29 +1,27 @@
 package com.github.vgrishecko.kmockserver.netty
 
-import com.github.vgrishecko.kmockserver.request.Header
-import com.github.vgrishecko.kmockserver.response.Response
-import com.github.vgrishecko.kmockserver.request.Request
+import com.github.vgrishecko.kmockserver.Rule
+import com.github.vgrishecko.kmockserver.entity.Header
+import com.github.vgrishecko.kmockserver.entity.Request
 import io.netty.buffer.ByteBuf
 import io.netty.handler.codec.http.HttpResponseStatus
 import io.reactivex.netty.RxNetty
 import io.reactivex.netty.protocol.http.server.HttpServer
 import io.reactivex.netty.protocol.http.server.HttpServerRequest
-import rx.Observable
 import java.nio.charset.Charset
-import java.util.function.Function
 
 class NettyServer {
 
     var server: HttpServer<ByteBuf, ByteBuf>? = null
 
-    var responseRules: MutableList<(Request) -> Response?> = ArrayList()
+    var responseRules: MutableList<Rule> = ArrayList()
 
     var isPause = false
 
     fun start() {
         stop()
 
-        server = RxNetty.createHttpServer(8080, { request, serverResponse ->
+        server = RxNetty.createHttpServer(4512, { request, serverResponse ->
             request.content
                     .map {
                         (it as ByteBuf).toString(Charset.defaultCharset())
@@ -46,10 +44,10 @@ class NettyServer {
                         }
 
                         if (response != null) {
-                            response.headers.forEach { serverResponse.headers.addHeader(it.name, it.value) }
+                            response.headers?.forEach { serverResponse.headers.addHeader(it.key, it.value) }
                             serverResponse.status = HttpResponseStatus(response.code, "")
 
-                            if (response.body.isNotEmpty()) {
+                            if (response.body != null && response.body.isNotEmpty()) {
                                 serverResponse.writeString(response.body)
                             }
 
@@ -58,8 +56,8 @@ class NettyServer {
                             serverResponse.status = HttpResponseStatus.NOT_FOUND
                             serverResponse.close()
                         }
-                    }.
-                    ignoreElements()
+                    }
+                    .ignoreElements()
                     .doOnError({ e ->
                         e.printStackTrace()
                     })
@@ -77,12 +75,11 @@ class NettyServer {
 }
 
 fun HttpServerRequest<*>.convertToRequest(body: String): Request {
-    val request = Request(this.path, Request.Type.valueOf(this.httpMethod.name()))
-    request.body = body
-    this.headers.names().forEach {
-        request.headers.plus(Header(it, this.headers[it]))
-    }
+    val path = this.path
+    val method = Request.Method.valueOf(this.httpMethod.name())
+    val headers = this.headers.names().map { it to this.headers.get(it) }.toMap()
 
-    return request
+
+    return Request(path, method, this.queryParameters, headers, body)
 }
 

@@ -1,10 +1,10 @@
 package com.github.vgrishechko.kmockwebserver.sample
 
 import com.github.vgrishecko.kmockserver.KmockWebServerRule
-import com.github.vgrishecko.kmockserver.request.Header
-import com.github.vgrishecko.kmockserver.request.Request
-import com.github.vgrishecko.kmockserver.response.Response
-import com.github.vgrishecko.kmockserver.response.response
+import com.github.vgrishecko.kmockserver.entity.Header
+import com.github.vgrishecko.kmockserver.entity.Request
+import com.github.vgrishecko.kmockserver.entity.Response
+import com.github.vgrishecko.kmockserver.entity.response
 import okhttp3.MediaType
 import okhttp3.OkHttpClient
 import okhttp3.RequestBody
@@ -12,7 +12,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.RuleChain
-import java.awt.PageAttributes
 
 
 class Tests {
@@ -30,7 +29,7 @@ class Tests {
         val loginResponse = """"{"login":"test", "id":1}"""
 
         serverRule.addRule { request ->
-            if (request.path == "/login" && request.type == Request.Type.GET) {
+            if (request.path == "/login" && request.method == Request.Method.GET) {
                 response {
                     code = 200
                     body = loginResponse
@@ -56,7 +55,7 @@ class Tests {
     @Test
     fun shouldReturn401StatusCode() {
         serverRule.addRule { request ->
-            if (request.path == "/login" && request.type == Request.Type.GET) {
+            if (request.path == "/login" && request.method == Request.Method.GET) {
                 response {
                     code = 401
                 }
@@ -71,6 +70,7 @@ class Tests {
         }
     }
 
+
     @Test
     fun shouldReturn404Response() {
         assertThat(client.newCall(mockRequest("/", "GET")).execute().code()).isEqualTo(404)
@@ -82,7 +82,7 @@ class Tests {
         val postRequest = mockRequest("/post", "POST", """{"expected_result:"success"}""")
 
         val getRule: (Request) -> Response? = {
-            if (it.type == Request.Type.GET && it.path == "/get") {
+            if (it.method == Request.Method.GET && it.path == "/get") {
                 response {
                     code = 200
                 }
@@ -92,7 +92,7 @@ class Tests {
         }
 
         val postRule: (Request) -> Response? = {
-            if (it.type == Request.Type.POST && it.path == "/post") {
+            if (it.method == Request.Method.POST && it.path == "/post") {
                 response {
                     code = 200
                 }
@@ -130,7 +130,7 @@ class Tests {
         val JSON = MediaType.parse("application/json; charset=utf-8")
 
         return okhttp3.Request.Builder().apply {
-            url("http://127.0.0.1:8080" + path)
+            url("http://127.0.0.1:4512" + path)
             method(method, if (jsonBody != null) RequestBody.create(JSON, jsonBody) else null)
         }.build()
     }
