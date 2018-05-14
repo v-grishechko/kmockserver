@@ -3,6 +3,9 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/kmockserver.iml" filepath="$PROJECT_DIR$/.idea/modules/kmockserver.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/kmockserver.iml" filepath="$PROJECT_DIR$/.idea/modules/kmockserver.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/kmockserver_main.iml" filepath="$PROJECT_DIR$/.idea/modules/kmockserver_main.iml" group="kmockserver" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/kmockserver_test.iml" filepath="$PROJECT_DIR$/.idea/modules/kmockserver_test.iml" group="kmockserver" />
     </modules>
   </component>
 </project>

@@ -5,7 +5,19 @@ import com.github.vgrishecko.kmockserver.entity.Headers
 import com.github.vgrishecko.kmockserver.entity.QueryParams
 import com.github.vgrishecko.kmockserver.entity.Request
 import com.github.vgrishecko.kmockserver.entity.Response
+import com.github.vgrishecko.kmockserver.matchers.matches
 import org.hamcrest.Matcher
+
+fun MockWebServerRule.whenever(sentToPath: String,
+                               method: Request.Method): Pair<MockWebServerRule, Matcher<Request>> {
+    return Pair(this, matches(Request(sentToPath, method, null, null, null)))
+}
+
+fun MockWebServerRule.whenever(sentToPath: String,
+                               method: Request.Method,
+                               body: String): Pair<MockWebServerRule, Matcher<Request>> {
+    return Pair(this, matches(Request(sentToPath, method, null, null, body)))
+}
 
 fun MockWebServerRule.whenever(sentToPath: String,
                                queryParams: QueryParams? = null,
@@ -26,10 +38,3 @@ fun Pair<MockWebServerRule, Matcher<Request>>.thenRespond(response: Response): P
 
     return this
 }
-
-//TODO write class
-/*fun params(vararg pairs: Pair<String, String>): QueryParams =
-        if (pairs.isNotEmpty()) pairs.toList().toMap() else listOf()*/
-
-fun headers(vararg pairs: Pair<String, String>): Headers =
-        if (pairs.isNotEmpty()) pairs.toMap() else emptyMap()

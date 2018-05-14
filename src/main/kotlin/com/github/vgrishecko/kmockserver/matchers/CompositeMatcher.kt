@@ -12,7 +12,7 @@ fun <T : Any> T.matches(
         headers: Headers? = null,
         method: Request.Method? = null
 ): Matcher<Request> {
-    val matchers = mutableListOf(isSentToPath("/$sentToPath"))
+    val matchers = mutableListOf(isSentToPath("$sentToPath"))
 
     queryParams?.let {
         matchers.add(hasQueryParams(queryParams))
@@ -26,4 +26,8 @@ fun <T : Any> T.matches(
     }
 
     return allOf(matchers)
+}
+
+fun <T : Any> T.matches(request: Request): Matcher<Request> {
+    return matches(request.path, request.queryParams, request.headers, request.method)
 }

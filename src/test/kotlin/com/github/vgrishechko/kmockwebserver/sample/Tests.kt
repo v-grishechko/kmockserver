@@ -1,14 +1,12 @@
 package com.github.vgrishechko.kmockwebserver.sample
 
+import com.github.vgrishechko.kmockwebserver.testing.Requests
+import com.github.vgrishechko.kmockwebserver.testing.assertResponse
+import com.github.vgrishechko.kmockwebserver.testing.request
 import com.github.vgrishecko.kmockserver.KmockWebServerRule
-import com.github.vgrishecko.kmockserver.entity.Header
-import com.github.vgrishecko.kmockserver.entity.Request
-import com.github.vgrishecko.kmockserver.entity.Response
-import com.github.vgrishecko.kmockserver.entity.response
-import okhttp3.MediaType
-import okhttp3.OkHttpClient
-import okhttp3.RequestBody
-import org.assertj.core.api.Assertions.assertThat
+import com.github.vgrishecko.kmockserver.dsl.thenRespond
+import com.github.vgrishecko.kmockserver.dsl.whenever
+import com.github.vgrishecko.kmockserver.entity.*
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.RuleChain
@@ -18,9 +16,8 @@ class Tests {
 
     val serverRule: KmockWebServerRule = KmockWebServerRule()
 
-    val client: OkHttpClient = OkHttpClient()
-
-    @JvmField @Rule
+    @JvmField
+    @Rule
     val rule = RuleChain.emptyRuleChain()
             .around(serverRule)
 
@@ -28,58 +25,42 @@ class Tests {
     fun shouldReturnCorrectResponse() {
         val loginResponse = """"{"login":"test", "id":1}"""
 
-        serverRule.addRule { request ->
-            if (request.path == "/login" && request.method == Request.Method.GET) {
-                response {
-                    code = 200
-                    body = loginResponse
-                    headers(Header("Authorization", "hash"), Header("Test", "test"))
-                }
-            } else {
-                null
-            }
-        }
+        val mockedResponse = success(
+                code = 200,
+                body = loginResponse,
+                headers = headers("Authorization" to "hash", "Test" to "test")
+        )
 
-        val request = mockRequest("/login", "GET")
+        serverRule.whenever("/login", Request.Method.GET)
+                .thenRespond(mockedResponse)
 
-        client.newCall(request).execute().apply {
-            assertThat(code()).isEqualTo(200)
-            assertThat(body().string()).isEqualToIgnoringCase(loginResponse)
-            assertThat(header("Authorization")).isEqualToIgnoringCase("hash")
-            assertThat(header("Test")).isEqualToIgnoringCase("test")
-        }
-
-        assertThat(client.newCall(request).execute().code()).isEqualTo(404)
+        Requests
+                .makeRequest(request("/login", "GET"))
+                .assertResponse(mockedResponse)
     }
 
     @Test
     fun shouldReturn401StatusCode() {
-        serverRule.addRule { request ->
-            if (request.path == "/login" && request.method == Request.Method.GET) {
-                response {
-                    code = 401
-                }
-            } else {
-                null
-            }
-        }
+        val mockedResponse = error(401)
 
-        client.newCall(mockRequest("/login", "GET")).execute().apply {
-            assertThat(code()).isEqualTo(401)
-            assertThat(body().string()).isEmpty()
-        }
+        serverRule.whenever("/login", Request.Method.GET)
+                .thenRespond(mockedResponse)
+
+        Requests.makeRequest(request("/login", "GET"))
+                .assertResponse(mockedResponse)
     }
 
 
     @Test
     fun shouldReturn404Response() {
-        assertThat(client.newCall(mockRequest("/", "GET")).execute().code()).isEqualTo(404)
+        Requests.makeRequest(request("/", "GET"))
+                .assertResponse(404)
     }
 
     @Test
     fun stressTestshouldAcceptAllRulesAndReturnInTheEnd404() {
-        val getRequest = mockRequest("/get?a=123", "GET")
-        val postRequest = mockRequest("/post", "POST", """{"expected_result:"success"}""")
+        val getRequest = request("/get?a=123", "GET")
+        val postRequest = request("/post", "POST", """{"expected_result:"success"}""")
 
         val getRule: (Request) -> Response? = {
             if (it.method == Request.Method.GET && it.path == "/get") {
@@ -111,28 +92,17 @@ class Tests {
 
         for (i in 1..100) {
             if (i % 2 == 0) {
-                client.newCall(postRequest).execute().apply {
-                    assertThat(code()).isEqualTo(200)
-                    assertThat(body().string()).isEmpty()
-                }
+                Requests.makeRequest(postRequest)
+                        .assertResponse(200)
             } else {
-                client.newCall(getRequest).execute().apply {
-                    assertThat(code()).isEqualTo(200)
-                    assertThat(body().string()).isEmpty()
-                }
+
+                Requests.makeRequest(getRequest)
+                        .assertResponse(200)
             }
         }
 
-        assertThat(client.newCall(getRequest).execute().code()).isEqualTo(404)
-    }
-
-    fun mockRequest(path: String, method: String, jsonBody: String? = null): okhttp3.Request {
-        val JSON = MediaType.parse("application/json; charset=utf-8")
-
-        return okhttp3.Request.Builder().apply {
-            url("http://127.0.0.1:4512" + path)
-            method(method, if (jsonBody != null) RequestBody.create(JSON, jsonBody) else null)
-        }.build()
+        Requests.makeRequest(request("/", "GET"))
+                .assertResponse(404)
     }
 
 }

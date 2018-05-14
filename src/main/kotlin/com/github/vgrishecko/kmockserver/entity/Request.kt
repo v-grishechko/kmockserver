@@ -14,3 +14,21 @@ open class Request(val path: String,
 
     fun getParam(key: String): List<String>? = queryParams?.get(key)
 }
+
+
+fun params(vararg pairs: Pair<String, String>): QueryParams {
+    val params: MutableMap<String, MutableList<String>> = HashMap()
+
+    for(pair in pairs) {
+        if(!params.containsKey(pair.first)) {
+            params[pair.first] = ArrayList()
+        }
+
+        params[pair.first]?.add(pair.second)
+    }
+
+    return params
+}
+
+fun headers(vararg pairs: Pair<String, String>): Headers =
+        if (pairs.isNotEmpty()) pairs.toMap() else emptyMap()

@@ -34,8 +34,8 @@ publishing {
 
 
 bintray {
-    user = bintray_username
-    key = bintray_apikey
+    user = ""
+    key = ""
 
     publish = true
 
